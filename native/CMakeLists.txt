@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.22.1)
+project("RestorationNative")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
+set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=address")
+add_library(restoration_native SHARED src/tile_engine.cpp src/image_processor.cpp src/jni_bridge.cpp)
+target_include_directories(restoration_native PRIVATE include)
