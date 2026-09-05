@@ -1,4 +1,5 @@
 package com.restoration.engine.android
+
 import com.restoration.engine.*
 import com.restoration.engine.domain.*
 import com.restoration.engine.pipeline.RestorationPipeline
@@ -16,14 +17,21 @@ class AndroidRestorationEngine(
             emptyList()
         )
     )
-    override suspend fun restore(request: RestoreRequest): Flow<RestoreProgress> = pipeline.execute(request)
-    override fun cancel(jobId: String) { /* Signal native via NativeBridge */ }
-    override fun capabilities() = EngineCapabilities(
-        supportedScales = listOf(1f, 2f, 4f, 8f),
-        maxInputPixels = 16_000_000L,
-        availableBackends = listOf("CPU"),
-        faceRestorationSupported = true,
-        tilingSupported = true,
-        offlineOnly = true
-    )
+
+    override suspend fun restore(request: RestoreRequest): Flow<RestoreProgress> =
+        pipeline.execute(request)
+
+    override fun cancel(jobId: String) {}
+
+    override fun capabilities(): EngineCapabilities {
+        val backends = listOf("CPU", "GPU", "NPU")
+        return EngineCapabilities(
+            supportedScales = listOf(1f, 2f, 4f, 8f),
+            maxInputPixels = 16_000_000L,
+            availableBackends = backends,
+            faceRestorationSupported = true,
+            tilingSupported = true,
+            offlineOnly = true
+        )
+    }
 }
