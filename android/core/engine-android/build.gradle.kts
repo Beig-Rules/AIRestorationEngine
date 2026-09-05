@@ -11,3 +11,6 @@ dependencies {
     implementation(project(":engine"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }
+
+// Uncomment to enable real ONNX Runtime:
+// implementation("com.microsoft.onnxruntime:onnxruntime-android:1.17.1")
