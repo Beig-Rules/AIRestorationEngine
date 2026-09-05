@@ -1,0 +1,6 @@
+-keep class com.restoration.engine.** { *; }
+-keep class com.restoration.engine.android.** { *; }
+-keep class com.restoration.engine.android.NativeBridge { *; }
+-keepclasseswithmembernames class * { native <methods>; }
+-keep class ai.onnxruntime.** { *; }
+-dontwarn ai.onnxruntime.**

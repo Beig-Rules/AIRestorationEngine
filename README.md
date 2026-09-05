@@ -1,45 +1,49 @@
-# 🚀 AI Restoration Engine (Elite Edition)
+# 🚀 AI Restoration Engine
 
-**Offline-first, memory-safe AI image restoration for Android.**
+**Offline-first, memory-safe AI photo restoration for Android.**
 
-Multi-stage pipeline: **deblock → denoise → super-resolution → face restoration → post-process**  
-with adaptive planning, CPU/GPU/NPU backend selection, and interactive Before/After UI.
+Pipeline: **ANALYZE → DEBLOCK → DENOISE → SUPER_RESOLUTION → FACE_RESTORATION → POST_PROCESSING**  
+Adaptive planner · CPU/GPU/NPU backends · Compose UI · Before/After slider · Save & Share
 
-## Features
+## Status
 
-| Area | Status |
-|------|--------|
-| Pure Kotlin domain + sealed errors | ✅ |
-| Rule-based pipeline planner | ✅ |
-| Native C++ tile engine + ASan | ✅ |
-| HardwareBackend CPU / GPU / NPU | ✅ |
-| ONNX model catalog + Ort runner skeleton | ✅ |
-| Jetpack Compose multi-module UI | ✅ |
-| Before/After drag slider | ✅ |
-| Save to Gallery (MediaStore) | ✅ |
-| Share sheet | ✅ |
-| RestoreSession (cross-screen state) | ✅ |
+| Capability | Done |
+|------------|------|
+| Domain models, sealed errors, planner, pipeline | ✅ |
+| Native C++ tile engine + AddressSanitizer | ✅ |
+| HardwareBackend (CPU / GPU / NPU) + selector | ✅ |
+| ONNX ModelLoader + OrtOnnxRunner skeleton | ✅ |
+| Compose: Home, Editor, Result, Settings | ✅ |
+| Before/After slider | ✅ |
+| Save to Gallery + Share + FileProvider | ✅ |
+| RestoreSession cross-screen state | ✅ |
 | Application probeHardware | ✅ |
-| Tests / benchmarks / CI | ✅ |
+| Structured concurrency + cancel | ✅ |
+| Dispatchers.Default for process stages | ✅ |
+| Release R8 minify | ✅ |
+| Unit tests + Python checks + CI | ✅ |
 
-## Quick start (Cursor)
+## Cursor workflow
 
 ```bash
 git clone https://github.com/Beig-Rules/AIRestorationEngine.git
 cd AIRestorationEngine
 ```
 
-Edit freely in Cursor. For device run, open once in Android Studio → Sync → Run.
+Edit in Cursor. Device run: Android Studio once → Sync → Run (`android.app`).
 
-## Enable real ONNX inference
+```bash
+python3 tests/unit/test_planner.py
+```
 
-1. Put weights in `models/weights/`
-2. Uncomment in `android/core/engine-android/build.gradle.kts`:
-   `implementation("com.microsoft.onnxruntime:onnxruntime-android:1.17.1")`
-3. Expand `OrtOnnxRunner` tensor bind (see source comments).
+## Real ONNX models
 
-Docs: `docs/GPU_BACKEND.md`, `docs/SESSION_AND_ONNX.md`
+1. Weights in `models/weights/`
+2. Uncomment `onnxruntime-android` in `engine-android/build.gradle.kts`
+3. Expand tensor I/O in `OrtOnnxRunner`
+
+Without models the app runs end-to-end with heuristic metrics.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — [LICENSE](LICENSE).

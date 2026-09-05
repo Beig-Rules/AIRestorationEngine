@@ -5,7 +5,10 @@ android {
     defaultConfig { minSdk = 24 }
     buildFeatures { compose = true }
     composeOptions { kotlinCompilerExtensionVersion = "1.5.8" }
-    compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     kotlinOptions { jvmTarget = "17" }
 }
 dependencies {
@@ -14,5 +17,6 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
 }
