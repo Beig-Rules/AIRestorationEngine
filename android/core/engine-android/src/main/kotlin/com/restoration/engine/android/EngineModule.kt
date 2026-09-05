@@ -13,39 +13,44 @@ import com.restoration.engine.model.OnnxRunner
 import com.restoration.engine.pipeline.RestorationPipeline
 import com.restoration.engine.planner.RuleBasedPipelinePlanner
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 object EngineModule {
 
     private val probed = AtomicBoolean(false)
-    private var appContext: Context? = null
+    private val appContext = AtomicReference<Context?>(null)
 
     private val onnx: OnnxRunner by lazy { OrtOnnxRunner.create() }
 
     private val cpuBackend by lazy {
-        CpuBackend(weightsDir = appContext?.let { weightsDir(it) }, onnx = onnx)
+        CpuBackend(weightsDir = appContext.get()?.let { weightsDir(it) }, onnx = onnx)
     }
-    @Volatile private var gpuBackend: GpuBackend = GpuBackend(isAvailable = false)
-    @Volatile private var npuBackend: NpuBackend = NpuBackend(isAvailable = false)
 
-    val backendSelector: BackendSelector
-        get() = BackendSelector(listOf(cpuBackend, gpuBackend, npuBackend))
+    private val gpuRef = AtomicReference(GpuBackend(isAvailable = false))
+    private val npuRef = AtomicReference(NpuBackend(isAvailable = false))
+
+    val activeJobs = ConcurrentHashMap<String, AtomicBoolean>()
+
+    fun backendSelector(): BackendSelector =
+        BackendSelector(listOf(cpuBackend, gpuRef.get(), npuRef.get()))
 
     val planner by lazy { RuleBasedPipelinePlanner() }
 
     val pipeline by lazy {
-        RestorationPipeline(planner, BackendSelector(listOf(cpuBackend, gpuBackend, npuBackend)))
+        RestorationPipeline(planner) { backendSelector() }
     }
 
     val engine: RestorationEngine by lazy { AndroidRestorationEngine(pipeline) }
 
     fun probeHardware(context: Context? = null) {
-        if (context != null) appContext = context.applicationContext
+        if (context != null) appContext.set(context.applicationContext)
         if (!probed.compareAndSet(false, true)) return
 
         var gpu = false
         var npu = false
-        val ctx = appContext
+        val ctx = appContext.get()
         if (ctx != null) {
             val pm = ctx.packageManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) npu = true
@@ -53,8 +58,8 @@ object EngineModule {
                 || pm.hasSystemFeature("android.hardware.vulkan.level")
                 || pm.hasSystemFeature("android.hardware.vulkan.version")
         }
-        gpuBackend = GpuBackend(isAvailable = gpu, onnx = onnx)
-        npuBackend = NpuBackend(isAvailable = npu, onnx = onnx)
+        gpuRef.set(GpuBackend(isAvailable = gpu, onnx = onnx))
+        npuRef.set(NpuBackend(isAvailable = npu, onnx = onnx))
     }
 
     fun weightsDir(context: Context): File {
@@ -62,4 +67,9 @@ object EngineModule {
         if (!dir.exists()) dir.mkdirs()
         return dir
     }
+
+    fun markJob(jobId: String) { activeJobs[jobId] = AtomicBoolean(false) }
+    fun requestCancel(jobId: String) { activeJobs[jobId]?.set(true) }
+    fun isCancelled(jobId: String): Boolean = activeJobs[jobId]?.get() == true
+    fun clearJob(jobId: String) { activeJobs.remove(jobId) }
 }
