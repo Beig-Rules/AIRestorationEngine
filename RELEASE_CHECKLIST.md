@@ -1,0 +1,11 @@
+# Release Checklist
+- [ ] All tests pass (`./scripts/run_tests.sh`)
+- [ ] No memory leaks (ASan clean)
+- [ ] Golden tests pass with tolerance
+- [ ] Privacy policy included
+- [ ] License inventory complete
+- [ ] Signed AAB generated
+- [ ] ProGuard rules tested
+- [ ] No hardcoded strings (i18n ready)
+- [ ] Accessibility verified (TalkBack)
+- [ ] Performance benchmarks documented

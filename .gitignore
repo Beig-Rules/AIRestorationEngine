@@ -1,0 +1,13 @@
+.gradle/
+build/
+*.apk
+*.aab
+*.so
+.cxx/
+.idea/
+local.properties
+models/weights/*
+*.onnx
+*.tflite
+*.bin
+.DS_Store
